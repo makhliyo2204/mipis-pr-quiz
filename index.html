@@ -1,0 +1,1189 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Итоговый тест по практике МИПиС</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Unbounded:wght@500;700&display=swap" rel="stylesheet">
+<style>
+/* Идея раскладки: одна колонка 820px на «миллиметровке»; сверху переключатель Тест / Результаты,
+   в тесте один вопрос на экран с полосой обратного отсчёта. */
+:root {
+  --paper: #eef1f7;
+  --grid: rgba(31, 79, 216, 0.06);
+  --surface: #ffffff;
+  --ink: #131a2b;
+  --muted: #5a6477;
+  --line: #d3d9e6;
+  --accent: #1f4fd8;
+  --accent-ink: #ffffff;
+  --accent-soft: #e3e9fb;
+  --good: #17784a;
+  --good-soft: #dcf2e6;
+  --bad: #b93426;
+  --bad-soft: #fbe3df;
+  --warn: #9a6408;
+  --warn-soft: #fbeed2;
+  --font-display: "Unbounded", "Golos Text", system-ui, sans-serif;
+  --font-body: "Golos Text", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0e131f; --grid: rgba(124, 156, 255, 0.06); --surface: #171e2e; --ink: #e8ecf6;
+    --muted: #9ba6ba; --line: #2b3548; --accent: #86a3ff; --accent-ink: #0b1020; --accent-soft: #1e2b50;
+    --good: #55cf90; --good-soft: #143424; --bad: #ff8b7d; --bad-soft: #40201c; --warn: #ecb960; --warn-soft: #3b2d12;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #0e131f; --grid: rgba(124, 156, 255, 0.06); --surface: #171e2e; --ink: #e8ecf6;
+  --muted: #9ba6ba; --line: #2b3548; --accent: #86a3ff; --accent-ink: #0b1020; --accent-soft: #1e2b50;
+  --good: #55cf90; --good-soft: #143424; --bad: #ff8b7d; --bad-soft: #40201c; --warn: #ecb960; --warn-soft: #3b2d12;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background-color: var(--paper);
+  background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 24px 24px;
+  color: var(--ink);
+  font: 400 16px/1.5 var(--font-body);
+  -webkit-text-size-adjust: 100%;
+}
+[hidden] { display: none !important; }
+.wrap { max-width: 820px; margin: 0 auto; padding: 20px 16px 56px; display: flex; flex-direction: column; gap: 20px; }
+h1, h2, h3 { margin: 0; text-wrap: balance; }
+h1 { font: 700 clamp(22px, 4.6vw, 30px)/1.2 var(--font-display); letter-spacing: -0.01em; }
+h2 { font: 600 19px/1.3 var(--font-body); }
+h3 { font: 600 16px/1.35 var(--font-body); }
+p { margin: 0; }
+.muted { color: var(--muted); }
+.small { font-size: 14px; }
+.num { font-variant-numeric: tabular-nums; }
+code, pre, .mono { font-family: var(--font-mono); font-size: 0.92em; }
+pre { margin: 10px 0 0; padding: 12px 14px; background: var(--paper); border: 1px solid var(--line); border-radius: 8px; overflow-x: auto; line-height: 1.45; }
+
+/* шапка */
+.top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
+.brand { display: flex; flex-direction: column; gap: 2px; }
+.brand b { font: 700 15px/1.2 var(--font-display); letter-spacing: 0.04em; }
+.brand span { font-size: 13px; color: var(--muted); }
+.tabs { display: inline-flex; padding: 4px; gap: 4px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; }
+.tabs button { border: 0; background: transparent; color: var(--muted); font: 600 14px/1 var(--font-body); padding: 9px 14px; border-radius: 7px; cursor: pointer; }
+.tabs button[aria-selected="true"] { background: var(--accent); color: var(--accent-ink); }
+.tabs .count { font-variant-numeric: tabular-nums; opacity: 0.8; margin-left: 4px; }
+
+/* общие блоки */
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 22px; display: flex; flex-direction: column; gap: 16px; }
+.btn { appearance: none; border: 1px solid var(--line); background: var(--surface); color: var(--ink); font: 600 15px/1 var(--font-body); padding: 12px 18px; border-radius: 9px; cursor: pointer; }
+.btn:hover { border-color: var(--accent); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.btn.primary:hover { filter: brightness(1.08); }
+.btn.danger { color: var(--bad); }
+.btn.sm { padding: 9px 12px; font-size: 14px; }
+.btn:disabled { opacity: 0.45; cursor: not-allowed; }
+button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, summary:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.pill { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; font: 600 13px/1.3 var(--font-body); background: var(--accent-soft); color: var(--accent); white-space: nowrap; }
+.pill.good { background: var(--good-soft); color: var(--good); }
+.pill.bad { background: var(--bad-soft); color: var(--bad); }
+.pill.warn { background: var(--warn-soft); color: var(--warn); }
+.pill.plain { background: var(--paper); color: var(--muted); border: 1px solid var(--line); }
+label.field { display: flex; flex-direction: column; gap: 6px; font: 600 14px/1.3 var(--font-body); flex: 1 1 220px; }
+input[type="text"], input[type="search"], select, textarea {
+  font: 400 16px/1.3 var(--font-body); color: var(--ink); background: var(--surface);
+  border: 1px solid var(--line); border-radius: 9px; padding: 11px 12px; width: 100%;
+}
+textarea { font-family: var(--font-mono); font-size: 13px; min-height: 84px; resize: vertical; }
+.err { color: var(--bad); font-size: 14px; font-weight: 600; }
+
+/* старт */
+.facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+.fact { border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; display: flex; flex-direction: column; gap: 2px; }
+.fact b { font: 700 22px/1.1 var(--font-display); font-variant-numeric: tabular-nums; }
+.fact span { font-size: 13px; color: var(--muted); }
+.works { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 6px 18px; }
+.works li { display: flex; gap: 10px; align-items: baseline; font-size: 15px; }
+.works li i { font: 600 12px/1 var(--font-mono); font-style: normal; color: var(--accent); background: var(--accent-soft); border-radius: 5px; padding: 4px 6px; flex: none; }
+.scale { display: flex; flex-wrap: wrap; gap: 8px; }
+
+/* тест */
+.qhead { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; }
+.timer { display: flex; align-items: center; gap: 12px; }
+.timer .sec { font: 700 26px/1 var(--font-display); font-variant-numeric: tabular-nums; min-width: 2.2ch; text-align: right; }
+.timer .sec small { font: 500 13px/1 var(--font-body); color: var(--muted); margin-left: 3px; }
+.bar { flex: 1; height: 8px; background: var(--paper); border: 1px solid var(--line); border-radius: 999px; overflow: hidden; }
+.bar i { display: block; height: 100%; width: 100%; background: var(--accent); transform-origin: left center; }
+.timer.low .sec { color: var(--bad); }
+.timer.low .bar i { background: var(--bad); }
+.qtext { font: 500 18px/1.45 var(--font-body); }
+.qtext sub, .qtext sup, .opt sub, .opt sup { font-size: 0.72em; line-height: 0; }
+.opts { display: flex; flex-direction: column; gap: 10px; }
+.opt { display: flex; align-items: flex-start; gap: 12px; text-align: left; width: 100%; padding: 13px 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); color: var(--ink); font: 400 16px/1.4 var(--font-body); cursor: pointer; }
+.opt:hover { border-color: var(--accent); }
+.opt .key { flex: none; width: 28px; height: 28px; border-radius: 7px; display: grid; place-items: center; font: 600 14px/1 var(--font-body); background: var(--paper); border: 1px solid var(--line); color: var(--muted); }
+.opt[aria-checked="true"] { border-color: var(--accent); background: var(--accent-soft); box-shadow: inset 0 0 0 1px var(--accent); }
+.opt[aria-checked="true"] .key { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.dots { display: flex; flex-wrap: wrap; gap: 5px; }
+.dots i { width: 22px; height: 6px; border-radius: 3px; background: var(--line); }
+.dots i.done { background: var(--accent); }
+.dots i.skip { background: var(--warn); }
+.dots i.cur { background: var(--ink); }
+table.mx { border-collapse: collapse; margin-top: 10px; font: 400 15px/1.3 var(--font-mono); font-variant-numeric: tabular-nums; }
+table.mx td, table.mx th { border: 1px solid var(--line); padding: 5px 10px; text-align: center; font-weight: 400; }
+table.mx th { color: var(--muted); font-family: var(--font-body); font-size: 13px; }
+.opt table.mx { margin-top: 0; }
+
+/* итог */
+.verdict { display: grid; grid-template-columns: auto 1fr; gap: 18px 24px; align-items: center; }
+.grade { width: 116px; height: 116px; border-radius: 18px; display: grid; place-items: center; background: var(--accent); color: var(--accent-ink); font: 700 64px/1 var(--font-display); }
+.grade.g2 { background: var(--bad); color: var(--surface); }
+.grade.g3 { background: var(--warn); color: var(--surface); }
+.grade.g5 { background: var(--good); color: var(--surface); }
+.verdict dl { margin: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px 18px; }
+.verdict dt { font-size: 13px; color: var(--muted); }
+.verdict dd { margin: 0; font: 600 17px/1.3 var(--font-body); font-variant-numeric: tabular-nums; }
+.byWork { display: flex; flex-direction: column; gap: 8px; }
+.byWork .w { display: grid; grid-template-columns: 52px 1fr auto auto; gap: 10px; align-items: center; font-size: 15px; }
+.byWork .w i { font: 600 12px/1 var(--font-mono); font-style: normal; color: var(--accent); }
+.cells { display: inline-flex; gap: 4px; }
+.cells b { width: 18px; height: 18px; border-radius: 4px; background: var(--bad-soft); border: 1px solid var(--bad); }
+.cells b.ok { background: var(--good); border-color: var(--good); }
+.codebox { font: 400 13px/1.5 var(--font-mono); word-break: break-all; padding: 12px 14px; border: 1px dashed var(--accent); border-radius: 10px; background: var(--accent-soft); user-select: all; }
+.rev { display: flex; flex-direction: column; gap: 12px; }
+.rev article { border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; border-left: 4px solid var(--bad); }
+.rev article.ok { border-left-color: var(--good); }
+.rev .ans { font-size: 15px; display: grid; grid-template-columns: 110px 1fr; gap: 4px 10px; }
+.rev .ans span { color: var(--muted); font-size: 13px; padding-top: 2px; }
+.rev .why { font-size: 14px; color: var(--muted); }
+
+/* журнал */
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
+.tools { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; }
+.tools label.field { flex: 1 1 170px; }
+.check { display: inline-flex; gap: 8px; align-items: center; font-size: 14px; font-weight: 600; padding: 10px 0; }
+.tablewrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; }
+table.j { border-collapse: collapse; width: 100%; min-width: 900px; font-size: 14px; font-variant-numeric: tabular-nums; }
+table.j th, table.j td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--line); vertical-align: top; }
+table.j th { font: 600 12px/1.3 var(--font-body); color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; background: var(--paper); white-space: nowrap; }
+table.j tr:last-child td { border-bottom: 0; }
+table.j td.r, table.j th.r { text-align: right; }
+table.j .sub { color: var(--muted); font-size: 12.5px; }
+table.j .g { display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: 7px; font: 700 14px/1 var(--font-display); background: var(--accent-soft); color: var(--accent); }
+table.j .g.g5 { background: var(--good-soft); color: var(--good); }
+table.j .g.g3 { background: var(--warn-soft); color: var(--warn); }
+table.j .g.g2 { background: var(--bad-soft); color: var(--bad); }
+.pw { display: inline-flex; gap: 3px; flex-wrap: nowrap; }
+table.j td:nth-child(3), table.j td:nth-child(4), table.j td:last-child { white-space: nowrap; }
+.pw span { font: 600 11.5px/1 var(--font-mono); padding: 4px 5px; border-radius: 4px; background: var(--paper); border: 1px solid var(--line); }
+.pw span.full { background: var(--good-soft); border-color: transparent; color: var(--good); }
+.pw span.zero { background: var(--bad-soft); border-color: transparent; color: var(--bad); }
+.empty { border: 1px dashed var(--line); border-radius: 10px; padding: 26px 18px; text-align: center; color: var(--muted); }
+details.how { border: 1px solid var(--line); border-radius: 10px; padding: 12px 16px; }
+details.how summary { cursor: pointer; font-weight: 600; }
+details.how ol { margin: 10px 0 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; font-size: 15px; }
+.toast { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); background: var(--ink); color: var(--paper); padding: 10px 16px; border-radius: 9px; font: 600 14px/1.3 var(--font-body); z-index: 10; max-width: calc(100% - 32px); }
+@media (max-width: 520px) {
+  .card { padding: 18px 16px; }
+  .verdict { grid-template-columns: 1fr; }
+  .grade { width: 96px; height: 96px; font-size: 52px; }
+  .byWork .w { grid-template-columns: 44px 1fr auto; }
+  .byWork .w .cells { display: none; }
+  .rev .ans { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .opt, .btn, .tabs button { transition: border-color .12s, background-color .12s; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div class="brand">
+      <b>МИПиС</b>
+      <span>Моделирование информационных процессов и систем</span>
+    </div>
+    <div class="tabs" role="tablist" aria-label="Разделы">
+      <button type="button" role="tab" id="tab-test" aria-selected="true" data-tab="test">Тест</button>
+      <button type="button" role="tab" id="tab-results" aria-selected="false" data-tab="results">Результаты<span class="count" id="tab-count"></span></button>
+    </div>
+  </header>
+
+  <!-- ============ СТАРТ ============ -->
+  <section id="view-start" class="card">
+    <div>
+      <h1>Итоговый тест по практическим работам</h1>
+      <p class="muted" style="margin-top:8px">Тест охватывает практические работы №1–8. Вопросы и порядок ответов выбираются случайно, поэтому у каждого студента свой набор.</p>
+    </div>
+    <div class="facts" id="facts"></div>
+    <div>
+      <h3 style="margin-bottom:10px">Темы</h3>
+      <ol class="works" id="works"></ol>
+    </div>
+    <div>
+      <h3 style="margin-bottom:10px">Шкала оценки</h3>
+      <div class="scale" id="scale"></div>
+    </div>
+    <form id="start-form" class="row" style="align-items:flex-end" autocomplete="off">
+      <label class="field" for="f-name">Фамилия и имя
+        <input type="text" id="f-name" maxlength="60" placeholder="Например: Каримов Азиз">
+      </label>
+      <label class="field" for="f-group" style="flex:0 1 180px">Группа
+        <input type="text" id="f-group" maxlength="20" placeholder="Например: БИВТ-23-1">
+      </label>
+      <button type="submit" class="btn primary" id="btn-start">Начать тест</button>
+    </form>
+    <p class="err" id="start-err" hidden></p>
+    <p class="muted small">После нажатия «Начать тест» сразу запускается отсчёт времени первого вопроса. Вернуться к пройденному вопросу нельзя. Уходы со вкладки во время теста записываются в результат.</p>
+  </section>
+
+  <!-- ============ ТЕСТ ============ -->
+  <section id="view-quiz" class="card" hidden>
+    <div class="qhead">
+      <span class="pill" id="q-work"></span>
+      <span class="muted small num" id="q-count"></span>
+    </div>
+    <div class="timer" id="timer" role="timer" aria-live="off">
+      <div class="bar"><i id="bar"></i></div>
+      <div class="sec"><span id="sec">60</span><small>с</small></div>
+    </div>
+    <div class="qtext" id="q-text"></div>
+    <div class="opts" id="q-opts" role="radiogroup" aria-labelledby="q-text"></div>
+    <div class="row" style="justify-content:space-between">
+      <div class="dots" id="dots" aria-hidden="true"></div>
+      <button type="button" class="btn primary" id="btn-next">Ответить</button>
+    </div>
+    <p class="muted small">Выберите вариант и нажмите «Ответить». Когда время закончится, засчитается выбранный вариант, а если ничего не выбрано, вопрос останется без ответа.</p>
+  </section>
+
+  <!-- ============ ИТОГ ============ -->
+  <section id="view-result" hidden style="display:flex;flex-direction:column;gap:20px">
+    <div class="card">
+      <div class="verdict">
+        <div class="grade" id="r-grade">5</div>
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <div>
+            <h1 id="r-name"></h1>
+            <p class="muted" id="r-sub"></p>
+          </div>
+          <dl id="r-facts"></dl>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>По практическим работам</h2>
+      <div class="byWork" id="r-works"></div>
+    </div>
+    <div class="card">
+      <h2>Код результата</h2>
+      <p class="muted small">Отправьте этот код преподавателю. По нему результат попадёт в общий журнал группы.</p>
+      <div class="codebox" id="r-code"></div>
+      <div class="row">
+        <button type="button" class="btn primary sm" id="btn-copy-code">Скопировать код</button>
+        <button type="button" class="btn sm" id="btn-to-results">Открыть раздел результатов</button>
+        <button type="button" class="btn sm" id="btn-again">Новая попытка</button>
+      </div>
+    </div>
+    <div class="card" id="r-review-card">
+      <div class="row" style="justify-content:space-between">
+        <h2>Разбор ответов</h2>
+        <button type="button" class="btn sm" id="btn-rev-toggle">Показать все вопросы</button>
+      </div>
+      <div class="rev" id="r-review"></div>
+    </div>
+  </section>
+
+  <!-- ============ РЕЗУЛЬТАТЫ ============ -->
+  <section id="view-results" hidden style="display:flex;flex-direction:column;gap:20px">
+    <div class="card">
+      <div>
+        <h1>Результаты</h1>
+        <p class="muted" style="margin-top:8px">Журнал попыток на этом устройстве и результаты, добавленные по кодам студентов.</p>
+      </div>
+      <div class="stats" id="j-stats"></div>
+      <div class="tools">
+        <label class="field" for="j-search">Поиск по фамилии
+          <input type="search" id="j-search" placeholder="Фамилия">
+        </label>
+        <label class="field" for="j-group">Группа
+          <select id="j-group"><option value="">Все группы</option></select>
+        </label>
+        <label class="field" for="j-sort">Порядок
+          <select id="j-sort">
+            <option value="date">Сначала новые</option>
+            <option value="name">По фамилии</option>
+            <option value="score">По результату</option>
+          </select>
+        </label>
+        <label class="check" for="j-best"><input type="checkbox" id="j-best"> Только лучшая попытка</label>
+      </div>
+      <div id="j-table"></div>
+      <div class="row">
+        <button type="button" class="btn sm" id="btn-copy-table">Скопировать таблицу для Excel</button>
+        <button type="button" class="btn sm" id="btn-csv">Скачать CSV</button>
+        <button type="button" class="btn sm danger" id="btn-clear">Очистить журнал</button>
+        <span id="clear-confirm" class="row" hidden>
+          <span class="small">Удалить все записи с этого устройства?</span>
+          <button type="button" class="btn sm danger" id="btn-clear-yes">Удалить</button>
+          <button type="button" class="btn sm" id="btn-clear-no">Отмена</button>
+        </span>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Добавить результаты по кодам</h2>
+      <p class="muted small">Вставьте один или несколько кодов, которые прислали студенты. Каждый код с новой строки или через пробел.</p>
+      <label class="field" for="j-codes" style="flex:none">Коды результатов
+        <textarea id="j-codes" placeholder="MP1.…"></textarea>
+      </label>
+      <div class="row">
+        <button type="button" class="btn primary sm" id="btn-import">Добавить в журнал</button>
+        <span class="small" id="import-msg" role="status"></span>
+      </div>
+      <details class="how">
+        <summary>Как собрать результаты всей группы</summary>
+        <ol>
+          <li>Студент проходит тест на своём телефоне или компьютере и на экране итога нажимает «Скопировать код».</li>
+          <li>Студент отправляет код преподавателю, например в Telegram.</li>
+          <li>Преподаватель вставляет коды в поле выше. Изменённый или повреждённый код журнал не примет.</li>
+          <li>Готовую таблицу можно скопировать в Excel или скачать как CSV.</li>
+        </ol>
+      </details>
+    </div>
+  </section>
+
+</div>
+<div class="toast" id="toast" hidden role="status"></div>
+<script>
+/* ================= НАСТРОЙКИ =================
+   Всё, что обычно хочется поменять, собрано здесь. */
+const CONFIG = {
+  perWork: 4,              // сколько вопросов берётся из каждой практической работы (8 работ × 4 = 32)
+  secondsPerQuestion: 60,  // время на один вопрос, секунд
+  scale: [                 // оценка по доле верных ответов, %
+    { min: 85, grade: 5 },
+    { min: 70, grade: 4 },
+    { min: 55, grade: 3 },
+    { min: 0,  grade: 2 }
+  ],
+  showReview: true,        // показывать студенту разбор ответов после теста
+  storageKey: 'mipis-pr-quiz-v1',
+  salt: 'almalyk-mipis-2026'
+};
+
+const WORKS = [
+  { n: 1, t: 'Базовая последовательность псевдослучайных чисел' },
+  { n: 2, t: 'Метод инверсии' },
+  { n: 3, t: 'Статистическая обработка данных эксперимента' },
+  { n: 4, t: 'Марковские цепи с дискретным временем' },
+  { n: 5, t: 'Марковские цепи с непрерывным временем' },
+  { n: 6, t: 'Марковские цепи для моделирования СМО' },
+  { n: 7, t: 'Построение временной диаграммы' },
+  { n: 8, t: 'Обработка результатов однофакторного эксперимента' }
+];
+
+/* ================= БАНК ВОПРОСОВ =================
+   Только теория и формулы, без расчётных задач и кода.
+   Формат: Q(номер работы, вопрос, [ВЕРНЫЙ ответ, неверный, неверный, неверный], пояснение).
+   Верный ответ всегда записан первым; на экране варианты перемешиваются. */
+const BANK = [];
+function Q(w, q, o, e) { BANK.push({ id: w + '-' + (BANK.filter(x => x.w === w).length + 1), w, q, o, e }); }
+
+/* ---------- ПР №1. Псевдослучайные числа ---------- */
+Q(1, 'Почему числа, которые выдаёт программа, называют псевдослучайными?',
+  ['Их вычисляет алгоритм, и последовательность можно повторить',
+   'Их получают измерением физического шума',
+   'Они всегда одинаковые',
+   'Они всегда больше единицы'],
+  'Числа вычисляются детерминированным алгоритмом: тот же алгоритм и тот же seed дают ту же последовательность.');
+Q(1, 'Что такое seed?',
+  ['Начальное значение (состояние) генератора',
+   'Последнее число последовательности',
+   'Количество сгенерированных чисел',
+   'Модуль генератора'],
+  'Seed задаёт начальное состояние генератора, поэтому эксперимент можно повторить.');
+Q(1, 'Что получится, если дважды запустить генератор с одним и тем же seed?',
+  ['Две одинаковые последовательности',
+   'Две разные последовательности',
+   'Ошибка программы',
+   'Последовательность из одних нулей'],
+  'Одинаковый seed даёт одинаковую последовательность. Это называют воспроизводимостью.');
+Q(1, 'Какая формула задаёт линейный конгруэнтный генератор (LCG)?',
+  ['X<sub>n+1</sub> = (a·X<sub>n</sub> + c) mod m',
+   'X<sub>n+1</sub> = (X<sub>n</sub>)² mod m',
+   'X<sub>n+1</sub> = a·X<sub>n</sub> + c·m',
+   'X<sub>n+1</sub> = X<sub>n</sub> / m'],
+  'В формулу входят множитель a, приращение c и модуль m.');
+Q(1, 'Какие параметры входят в формулу LCG?',
+  ['Множитель a, приращение c, модуль m и начальное значение X₀',
+   'Среднее и дисперсия',
+   'Интенсивности λ и μ',
+   'Число интервалов гистограммы'],
+  'X<sub>n+1</sub> = (a·X<sub>n</sub> + c) mod m, где X₀ — seed.');
+Q(1, 'Как из целого числа X<sub>n</sub> получить число на интервале [0, 1)?',
+  ['U<sub>n</sub> = X<sub>n</sub> / m', 'U<sub>n</sub> = X<sub>n</sub> · m', 'U<sub>n</sub> = X<sub>n</sub> + m', 'U<sub>n</sub> = m − X<sub>n</sub>'],
+  'Состояние делят на модуль m.');
+Q(1, 'Чему равно теоретическое математическое ожидание равномерного распределения U(0, 1)?',
+  ['0,5', '0', '1', '1/12'],
+  'Для U(0, 1) математическое ожидание равно 0,5.');
+Q(1, 'Чему равна теоретическая дисперсия равномерного распределения U(0, 1)?',
+  ['1/12', '1/2', '1', '0'],
+  'Для U(0, 1) дисперсия равна 1/12 ≈ 0,0833.');
+Q(1, 'Что называют периодом генератора?',
+  ['Длину последовательности до начала повторения',
+   'Время генерации одного числа',
+   'Разность между наибольшим и наименьшим числом',
+   'Количество интервалов гистограммы'],
+  'Хороший генератор имеет длинный период.');
+Q(1, 'Как работает метод середины квадратов?',
+  ['Число возводят в квадрат и берут средние цифры результата',
+   'Число делят на модуль и берут остаток',
+   'Складывают два предыдущих числа',
+   'Число умножают на seed'],
+  'Средние цифры квадрата становятся следующим числом последовательности.');
+Q(1, 'В чём главный недостаток метода середины квадратов?',
+  ['Короткий период: последовательность быстро повторяется или вырождается в ноль',
+   'Он слишком медленный',
+   'Для него нужна библиотека NumPy',
+   'Числа получаются отрицательными'],
+  'Поэтому метод используют в основном для учебной демонстрации.');
+Q(1, 'Для чего строят гистограмму псевдослучайных чисел?',
+  ['Чтобы проверить, равномерно ли числа заполняют интервал',
+   'Чтобы узнать seed',
+   'Чтобы найти период генератора',
+   'Чтобы ускорить генерацию'],
+  'У равномерной выборки столбцы гистограммы примерно одинаковой высоты.');
+
+/* ---------- ПР №2. Метод инверсии ---------- */
+Q(2, 'В чём состоит метод инверсии?',
+  ['Равномерное число U подставляют в обратную функцию распределения: X = F⁻¹(U)',
+   'Числа сортируют по возрастанию',
+   'Числа возводят в квадрат и берут средние цифры',
+   'Из выборки удаляют выбросы'],
+  'Уравнение U = F(x) решают относительно x.');
+Q(2, 'Какое распределение имеет исходное число U в методе инверсии?',
+  ['Равномерное на интервале (0, 1)', 'Нормальное', 'Экспоненциальное', 'Распределение Парето'],
+  'Стандартный генератор выдаёт числа U ~ U(0, 1), их затем преобразуют.');
+Q(2, 'Что означает функция распределения F(x)?',
+  ['Вероятность того, что X ≤ x', 'Вероятность того, что X = x', 'Среднее значение X', 'Дисперсию X'],
+  'F(x) = P(X ≤ x).');
+Q(2, 'Какой вид имеет функция экспоненциального распределения?',
+  ['F(x) = 1 − e<sup>−λx</sup>', 'F(x) = x² / a²', 'F(x) = (x − a) / (b − a)', 'F(x) = λx'],
+  'Экспоненциальное распределение: F(x) = 1 − e^(−λx), x ≥ 0.');
+Q(2, 'Какая формула генерации получается для экспоненциального распределения?',
+  ['X = −ln(1 − U) / λ', 'X = a·√U', 'X = a + (b − a)·U', 'X = λ·U'],
+  'Из U = 1 − e^(−λx) получаем X = −ln(1 − U)/λ.');
+Q(2, 'Чему равно математическое ожидание экспоненциального распределения?',
+  ['1/λ', 'λ', 'λ²', '1/λ²'],
+  'M(X) = 1/λ.');
+Q(2, 'Чему равна дисперсия экспоненциального распределения?',
+  ['1/λ²', '1/λ', 'λ', 'λ²'],
+  'D(X) = 1/λ².');
+Q(2, 'Функция распределения F(x) = x²/a². Какая формула генерации получается?',
+  ['X = a·√U', 'X = a·U²', 'X = −ln(1 − U) / a', 'X = U / a'],
+  'U = x²/a², значит X = a·√U.');
+Q(2, 'Какая формула генерации получается для равномерного распределения на отрезке [a; b]?',
+  ['X = a + (b − a)·U', 'X = a·b·U', 'X = (b − a) / U', 'X = a − b·U'],
+  'Из U = (x − a)/(b − a) получаем X = a + (b − a)·U.');
+Q(2, 'Какая формула генерации получается для степенного распределения F(x) = (x/a)<sup>k</sup>?',
+  ['X = a·U<sup>1/k</sup>', 'X = a·U<sup>k</sup>', 'X = k·a·U', 'X = −ln(1 − U) / k'],
+  'U = (x/a)^k, значит X = a·U^(1/k).');
+Q(2, 'Какой должна быть функция F(x), чтобы применить метод инверсии?',
+  ['Монотонной и имеющей обратную функцию', 'Периодической', 'Постоянной', 'Отрицательной'],
+  'Нужна обратная функция F⁻¹, в которую подставляют число U.');
+Q(2, 'Что происходит при увеличении объёма выборки N?',
+  ['Экспериментальные характеристики становятся ближе к теоретическим',
+   'Экспериментальные характеристики всё сильнее отличаются от теоретических',
+   'Среднее значение всегда растёт',
+   'Гистограмма исчезает'],
+  'Чем больше выборка, тем меньше расхождение с теорией.');
+
+/* ---------- ПР №3. Статистическая обработка ---------- */
+Q(3, 'По какой формуле вычисляют выборочное среднее?',
+  ['x̄ = Σx<sub>i</sub> / n', 'x̄ = Σx<sub>i</sub> · n', 'x̄ = x<sub>max</sub> − x<sub>min</sub>', 'x̄ = √(Σx<sub>i</sub>)'],
+  'Сумму всех значений делят на их количество.');
+Q(3, 'Что такое медиана?',
+  ['Значение, которое делит упорядоченный ряд на две равные части',
+   'Самое большое значение ряда',
+   'Сумма всех значений',
+   'Разность наибольшего и наименьшего значений'],
+  'Медиана стоит в середине упорядоченного ряда и мало зависит от выбросов.');
+Q(3, 'По какой формуле вычисляют выборочную дисперсию?',
+  ['S² = Σ(x<sub>i</sub> − x̄)² / (n − 1)', 'S² = Σx<sub>i</sub> / n', 'S² = x<sub>max</sub> − x<sub>min</sub>', 'S² = S / √n'],
+  'Сумму квадратов отклонений от среднего делят на n − 1.');
+Q(3, 'Что показывает дисперсия?',
+  ['Разброс значений относительно среднего',
+   'Центральное значение выборки',
+   'Количество наблюдений',
+   'Наибольшее значение выборки'],
+  'Чем больше дисперсия, тем сильнее значения отличаются от среднего.');
+Q(3, 'Как связаны стандартное отклонение и дисперсия?',
+  ['S = √S²', 'S = S² / n', 'S = 2·S²', 'S = (S²)²'],
+  'Стандартное отклонение — квадратный корень из дисперсии. Оно измеряется в тех же единицах, что и данные.');
+Q(3, 'По какой формуле вычисляют коэффициент вариации?',
+  ['V = S / x̄ · 100 %', 'V = x̄ / S · 100 %', 'V = S · x̄', 'V = S / √n'],
+  'Коэффициент вариации показывает относительную изменчивость в процентах.');
+Q(3, 'По какой формуле вычисляют стандартную ошибку среднего?',
+  ['m = S / √n', 'm = S · √n', 'm = S / n²', 'm = S²'],
+  'Стандартная ошибка показывает, насколько точно выборочное среднее оценивает истинное.');
+Q(3, 'Как записывается доверительный интервал для среднего?',
+  ['x̄ ± t · S / √n', 'x̄ ± S²', 'x̄ ± n', 'x̄ · t'],
+  't — коэффициент Стьюдента, S/√n — стандартная ошибка среднего.');
+Q(3, 'Как вычисляют размах выборки?',
+  ['R = x<sub>max</sub> − x<sub>min</sub>', 'R = x<sub>max</sub> + x<sub>min</sub>', 'R = x<sub>max</sub> / x<sub>min</sub>', 'R = Σx<sub>i</sub> / n'],
+  'Размах — разность наибольшего и наименьшего значений.');
+Q(3, 'Что показывает гистограмма?',
+  ['Распределение результатов по интервалам',
+   'Зависимость одного измерения от другого',
+   'Только среднее значение',
+   'Порядок проведения измерений'],
+  'Высота столбца показывает, сколько значений попало в интервал.');
+Q(3, 'Что показывает диаграмма размаха?',
+  ['Медиану, квартильный размах и возможные выбросы',
+   'Только среднее значение',
+   'Количество наблюдений',
+   'Формулу дисперсии'],
+  'Диаграмма размаха помогает увидеть медиану, разброс и выбросы.');
+Q(3, 'Как увеличение числа наблюдений влияет на точность оценки среднего?',
+  ['Стандартная ошибка уменьшается, доверительный интервал становится уже',
+   'Стандартная ошибка растёт',
+   'Точность не меняется',
+   'Доверительный интервал становится шире'],
+  'm = S/√n: чем больше n, тем меньше ошибка.');
+
+/* ---------- ПР №4. Дискретные марковские цепи ---------- */
+Q(4, 'В чём состоит главное свойство марковской цепи?',
+  ['Будущее состояние зависит только от текущего состояния',
+   'Будущее состояние зависит от всей предыдущей истории',
+   'Будущее состояние ни от чего не зависит',
+   'Система всегда возвращается в начальное состояние'],
+  'Это свойство называют отсутствием памяти.');
+Q(4, 'Как изменяется время в марковской цепи с дискретным временем?',
+  ['Шагами: n = 0, 1, 2, 3, …', 'Непрерывно, в случайные моменты', 'Время не учитывается', 'Только в обратную сторону'],
+  'Переходы происходят по шагам.');
+Q(4, 'Что показывает элемент p<sub>ij</sub> матрицы переходов?',
+  ['Вероятность перейти из состояния i в состояние j за один шаг',
+   'Время пребывания в состоянии i',
+   'Количество состояний системы',
+   'Номер текущего шага'],
+  'Матрица P состоит из вероятностей переходов за один шаг.');
+Q(4, 'Чему равна сумма элементов каждой строки матрицы переходов P?',
+  ['1', '0', '100', 'Числу состояний'],
+  'Из любого состояния система обязательно переходит в одно из возможных состояний.');
+Q(4, 'Какую матрицу называют стохастической?',
+  ['Все элементы неотрицательны, сумма каждой строки равна 1',
+   'Все элементы равны нулю',
+   'Сумма каждой строки равна нулю',
+   'Все элементы больше единицы'],
+  'Таким свойством обладает матрица переходных вероятностей.');
+Q(4, 'Что показывает начальное распределение π₀?',
+  ['Вероятности состояний в момент n = 0',
+   'Вероятности переходов между состояниями',
+   'Число шагов моделирования',
+   'Стационарные вероятности'],
+  'π₀ описывает, в каком состоянии система находится в начале.');
+Q(4, 'Как найти распределение вероятностей через один шаг?',
+  ['π₁ = π₀·P', 'π₁ = π₀ + P', 'π₁ = P / π₀', 'π₁ = π₀ − P'],
+  'Начальное распределение умножают на матрицу переходов.');
+Q(4, 'Как найти распределение вероятностей через n шагов?',
+  ['π<sub>n</sub> = π₀·P<sup>n</sup>', 'π<sub>n</sub> = n·π₀', 'π<sub>n</sub> = π₀ + n·P', 'π<sub>n</sub> = P / n'],
+  'Каждый шаг — умножение на P, поэтому берут P в степени n.');
+Q(4, 'Какое распределение называют стационарным?',
+  ['Распределение, которое не меняется после одного шага',
+   'Начальное распределение',
+   'Распределение, в котором все вероятности равны нулю',
+   'Распределение, которое меняется на каждом шаге'],
+  'Для стационарного распределения выполняется π = πP.');
+Q(4, 'Из какого уравнения находят стационарное распределение?',
+  ['π = πP, сумма π<sub>i</sub> равна 1', 'π = P + 1', 'π = π₀', 'πP = 0'],
+  'Уравнение π = πP дополняют условием нормировки.');
+Q(4, 'Что изображают на графе переходов марковской цепи?',
+  ['Состояния и переходы между ними с вероятностями',
+   'Гистограмму выборки',
+   'Очередь заявок',
+   'Ось времени и интервалы'],
+  'Вершины графа — состояния, стрелки — возможные переходы.');
+Q(4, 'К чему приближаются частоты состояний при длинной имитации цепи?',
+  ['К стационарному распределению, если оно существует',
+   'К нулю',
+   'К начальному распределению',
+   'К единице для каждого состояния'],
+  'При большом числе шагов частоты приближаются к устойчивым значениям.');
+
+/* ---------- ПР №5. Непрерывные марковские цепи ---------- */
+Q(5, 'Чем цепь с непрерывным временем отличается от цепи с дискретным временем?',
+  ['Переходы происходят в случайные моменты времени, а не по шагам',
+   'У неё нет состояний',
+   'Будущее зависит от всей истории',
+   'Переходы невозможны'],
+  'Марковское свойство сохраняется, меняется только характер времени.');
+Q(5, 'Как называется главная матрица модели с непрерывным временем?',
+  ['Матрица интенсивностей Q', 'Матрица переходных вероятностей P', 'Таблица ANOVA', 'Матрица наблюдений'],
+  'Модель задаётся матрицей интенсивностей переходов Q.');
+Q(5, 'Что показывает элемент q<sub>ij</sub> матрицы Q при i ≠ j?',
+  ['Интенсивность (скорость) перехода из состояния i в состояние j',
+   'Вероятность остаться в состоянии i',
+   'Номер шага',
+   'Время моделирования'],
+  'Вне диагонали стоят интенсивности переходов, q<sub>ij</sub> ≥ 0.');
+Q(5, 'Чему равна сумма элементов каждой строки матрицы Q?',
+  ['0', '1', '100', 'Числу состояний'],
+  'Диагональный элемент равен сумме остальных со знаком минус.');
+Q(5, 'Как определяется диагональный элемент q<sub>ii</sub>?',
+  ['q<sub>ii</sub> = −Σq<sub>ij</sub>', 'q<sub>ii</sub> = 1', 'q<sub>ii</sub> = Σq<sub>ij</sub>', 'q<sub>ii</sub> = 0'],
+  'Сумму интенсивностей выхода из состояния берут со знаком минус.');
+Q(5, 'По какому закону распределено время пребывания в состоянии?',
+  ['По экспоненциальному', 'По равномерному', 'По нормальному', 'Оно всегда постоянно'],
+  'Время пребывания в состоянии i экспоненциально с параметром λ<sub>i</sub>.');
+Q(5, 'Чему равна интенсивность выхода из состояния i?',
+  ['λ<sub>i</sub> = −q<sub>ii</sub>', 'λ<sub>i</sub> = q<sub>ii</sub>²', 'λ<sub>i</sub> = 1', 'λ<sub>i</sub> = 0'],
+  'Диагональный элемент отрицателен, поэтому берут его со знаком минус.');
+Q(5, 'Как найти вероятность перехода из состояния i в состояние j?',
+  ['p<sub>ij</sub> = q<sub>ij</sub> / λ<sub>i</sub>', 'p<sub>ij</sub> = q<sub>ij</sub> · λ<sub>i</sub>', 'p<sub>ij</sub> = λ<sub>i</sub> − q<sub>ij</sub>', 'p<sub>ij</sub> = 1 / q<sub>ij</sub>'],
+  'Интенсивность перехода делят на интенсивность выхода из состояния.');
+Q(5, 'По какой формуле генерируют время пребывания в состоянии?',
+  ['τ = −ln(1 − U) / λ<sub>i</sub>', 'τ = λ<sub>i</sub> · U', 'τ = U²', 'τ = λ<sub>i</sub> + U'],
+  'Это метод инверсии для экспоненциального распределения.');
+Q(5, 'Чему равно среднее время пребывания в состоянии i?',
+  ['1 / λ<sub>i</sub>', 'λ<sub>i</sub>', 'λ<sub>i</sub>²', '0'],
+  'Среднее экспоненциального распределения равно 1/λ<sub>i</sub>.');
+Q(5, 'Как записываются уравнения Колмогорова?',
+  ['p′(t) = p(t)·Q', 'p(t) = Q', 'p′(t) = 0', 'p(t) = t·Q'],
+  'Производная вектора вероятностей равна его произведению на матрицу Q.');
+Q(5, 'Из какой системы находят стационарные вероятности?',
+  ['πQ = 0, сумма π<sub>i</sub> равна 1', 'π = Q', 'πQ = 1', 'π + Q = 0'],
+  'В стационарном режиме вероятности не меняются, поэтому πQ = 0.');
+
+/* ---------- ПР №6. СМО ---------- */
+Q(6, 'Что такое система массового обслуживания?',
+  ['Модель, в которой заявки поступают, ждут в очереди и обслуживаются каналами',
+   'Таблица результатов эксперимента',
+   'Генератор случайных чисел',
+   'График изменения температуры'],
+  'Примеры: касса банка, call-центр, сервер обработки запросов.');
+Q(6, 'Что означает λ в модели СМО?',
+  ['Интенсивность поступления заявок', 'Интенсивность обслуживания', 'Число каналов', 'Длину очереди'],
+  'λ показывает, сколько заявок в среднем поступает в единицу времени.');
+Q(6, 'Что означает μ в модели СМО?',
+  ['Интенсивность обслуживания', 'Интенсивность поступления заявок', 'Вероятность отказа', 'Число заявок в системе'],
+  'μ показывает, сколько заявок канал в среднем обслуживает в единицу времени.');
+Q(6, 'Что означает запись M/M/1?',
+  ['Пуассоновский поток заявок, экспоненциальное обслуживание, один канал',
+   'Одна заявка в минуту',
+   'Один студент, одна задача',
+   'Матрица из одной строки'],
+  'Последняя цифра — число каналов обслуживания.');
+Q(6, 'Как определяется коэффициент загрузки модели M/M/1?',
+  ['ρ = λ / μ', 'ρ = μ / λ', 'ρ = λ · μ', 'ρ = λ + μ'],
+  'Интенсивность поступления делят на интенсивность обслуживания.');
+Q(6, 'При каком условии система M/M/1 устойчива?',
+  ['ρ &lt; 1', 'ρ &gt; 1', 'ρ = 10', 'При любом ρ'],
+  'Заявки должны поступать реже, чем канал успевает их обслуживать.');
+Q(6, 'По какой формуле находят среднее число заявок в системе M/M/1?',
+  ['L = ρ / (1 − ρ)', 'L = 1 − ρ', 'L = ρ · μ', 'L = λ + μ'],
+  'L — среднее число заявок в системе.');
+Q(6, 'По какой формуле находят среднее время пребывания заявки в системе M/M/1?',
+  ['W = 1 / (μ − λ)', 'W = μ − λ', 'W = λ / μ', 'W = λ · μ'],
+  'W — среднее время от прихода заявки до окончания обслуживания.');
+Q(6, 'Чему равна вероятность того, что система M/M/1 пуста?',
+  ['P₀ = 1 − ρ', 'P₀ = ρ', 'P₀ = 1', 'P₀ = ρ²'],
+  'Из формулы P<sub>n</sub> = (1 − ρ)ρ<sup>n</sup> при n = 0.');
+Q(6, 'Что означает состояние n в модели СМО?',
+  ['В системе находится n заявок', 'Работает n каналов', 'Прошло n часов', 'Потеряно n заявок'],
+  'Состояние системы определяется числом заявок в ней.');
+Q(6, 'Что происходит с новой заявкой, если система M/M/1/K заполнена?',
+  ['Заявка теряется (получает отказ)',
+   'Заявка встаёт в очередь',
+   'Заявка обслуживается вне очереди',
+   'Система перезапускается'],
+  'Долю потерянных заявок показывает вероятность отказа P<sub>K</sub>.');
+Q(6, 'Почему СМО называют процессом рождения и гибели?',
+  ['Число заявок меняется на единицу: заявка пришла или обслужена',
+   'Каналы обслуживания постоянно ломаются',
+   'Заявки удваиваются',
+   'В системе только два состояния'],
+  'Переходы возможны только в соседние состояния: n + 1 и n − 1.');
+
+/* ---------- ПР №7. Временная диаграмма ---------- */
+Q(7, 'Что такое временная диаграмма?',
+  ['Графическое представление изменения системы во времени',
+   'Таблица случайных чисел',
+   'Матрица переходных вероятностей',
+   'Формула для расчёта среднего'],
+  'Она показывает, когда начинаются и заканчиваются события и сколько длятся состояния.');
+Q(7, 'Чем событие отличается от интервала?',
+  ['Событие происходит в один момент времени, интервал имеет начало и конец',
+   'Событие длится дольше интервала',
+   'Ничем не отличается',
+   'Интервал не имеет длительности'],
+  'Например, событие t = 5, а интервал — с t = 5 до t = 9.');
+Q(7, 'Что откладывают по горизонтальной оси временной диаграммы?',
+  ['Время', 'Вероятность', 'Количество заявок', 'Номер варианта'],
+  'Ось времени — основной элемент диаграммы.');
+Q(7, 'Как вычислить длительность интервала?',
+  ['Конец минус начало', 'Начало плюс конец', 'Начало умножить на конец', 'Конец разделить на начало'],
+  'Длительность = конец − начало.');
+Q(7, 'Как на диаграмме размещают несколько объектов или ресурсов?',
+  ['Каждый на отдельной горизонтальной линии',
+   'Все на одной линии',
+   'Каждый на отдельном листе',
+   'В случайном порядке'],
+  'Отдельные линии соответствуют кассирам, станкам, заявкам или этапам проекта.');
+Q(7, 'Какие столбцы содержит таблица данных для построения диаграммы?',
+  ['Объект, состояние, начало, конец, длительность',
+   'Среднее, дисперсия, медиана',
+   'Фактор, уровень, отклик',
+   'Вероятность, шаг, состояние'],
+  'По этим данным строят интервалы на диаграмме.');
+Q(7, 'Какие элементы относятся к временной диаграмме?',
+  ['Ось времени, событие, интервал, состояние, ресурс, подпись',
+   'Среднее, дисперсия, размах',
+   'Матрица, вектор, шаг',
+   'Фактор, уровень, отклик'],
+  'Это основные элементы временной диаграммы.');
+Q(7, 'Как по диаграмме определить простой ресурса?',
+  ['По участкам его линии, где ресурс не занят',
+   'По самому длинному интервалу работы',
+   'По числу объектов',
+   'По подписи оси'],
+  'Простой — время, когда ресурс свободен.');
+Q(7, 'Как определить время ожидания клиента?',
+  ['Момент начала обслуживания минус момент прихода',
+   'Момент ухода плюс момент прихода',
+   'Длительность обслуживания',
+   'Общая длительность процесса'],
+  'Ожидание длится от прихода клиента до начала его обслуживания.');
+Q(7, 'Как на диаграмме выглядят параллельные процессы?',
+  ['Интервалы на разных линиях перекрываются по времени',
+   'Интервалы идут строго друг за другом на одной линии',
+   'На диаграмме нет интервалов',
+   'Все интервалы имеют одинаковую длину'],
+  'Если в один момент заняты две линии, процессы идут одновременно.');
+Q(7, 'Что можно определить по временной диаграмме?',
+  ['Время ожидания, простои и общую продолжительность процесса',
+   'Seed генератора',
+   'Стационарное распределение',
+   'Значение F-критерия'],
+  'Диаграмма помогает найти ожидания, простои и критические участки.');
+Q(7, 'С чего начинают построение временной диаграммы?',
+  ['Определяют объект исследования и интервал наблюдения',
+   'Строят гистограмму',
+   'Вычисляют дисперсию',
+   'Находят обратную функцию'],
+  'Сначала выбирают систему и промежуток времени, затем составляют список событий.');
+
+/* ---------- ПР №8. Однофакторный эксперимент ---------- */
+Q(8, 'Что такое однофакторный эксперимент?',
+  ['Эксперимент, в котором исследуют влияние одного фактора на результат',
+   'Эксперимент с одним измерением',
+   'Эксперимент без повторов',
+   'Эксперимент с одним студентом'],
+  'Изменяют один фактор и наблюдают, как меняется отклик.');
+Q(8, 'Что называют откликом эксперимента?',
+  ['Измеряемый результат', 'Изменяемое условие', 'Число повторов', 'Номер опыта'],
+  'Например, фактор — метод обучения, отклик — балл за тест.');
+Q(8, 'Что называют фактором?',
+  ['Условие, влияние которого исследуют', 'Результат измерения', 'Случайную ошибку', 'Среднее значение'],
+  'Например, температура обработки или метод обучения.');
+Q(8, 'Что такое уровни фактора?',
+  ['Значения (варианты), которые принимает фактор',
+   'Результаты измерений',
+   'Случайные ошибки',
+   'Номера повторных опытов'],
+  'Например, три метода обучения — три уровня фактора.');
+Q(8, 'Зачем нужны повторные измерения?',
+  ['Чтобы оценить случайный разброс данных',
+   'Чтобы увеличить число факторов',
+   'Чтобы убрать отклик',
+   'Чтобы не считать средние'],
+  'Повторы позволяют отделить влияние фактора от случайных колебаний.');
+Q(8, 'По какой формуле вычисляют групповое среднее?',
+  ['x̄<sub>i</sub> = Σx<sub>ij</sub> / n<sub>i</sub>', 'x̄<sub>i</sub> = Σx<sub>ij</sub> · n<sub>i</sub>', 'x̄<sub>i</sub> = x<sub>max</sub> − x<sub>min</sub>', 'x̄<sub>i</sub> = n<sub>i</sub> / Σx<sub>ij</sub>'],
+  'Сумму значений группы делят на число наблюдений в группе.');
+Q(8, 'На какие части делится общая изменчивость данных в дисперсионном анализе?',
+  ['Между группами и внутри групп',
+   'На положительную и отрицательную',
+   'На среднюю и медианную',
+   'На начальную и конечную'],
+  'Сравнивают различия между группами со случайным разбросом внутри групп.');
+Q(8, 'Что характеризует сумма квадратов SS<sub>ош</sub>?',
+  ['Разброс значений внутри групп',
+   'Различие между группами',
+   'Число уровней фактора',
+   'Общее среднее'],
+  'SS<sub>ош</sub> — случайная изменчивость внутри групп.');
+Q(8, 'По какой формуле вычисляют F-критерий?',
+  ['F = MS<sub>ф</sub> / MS<sub>ош</sub>', 'F = MS<sub>ош</sub> / MS<sub>ф</sub>', 'F = MS<sub>ф</sub> + MS<sub>ош</sub>', 'F = MS<sub>ф</sub> − MS<sub>ош</sub>'],
+  'Средний квадрат фактора делят на средний квадрат ошибки.');
+Q(8, 'По какой формуле вычисляют средний квадрат фактора (k — число уровней)?',
+  ['MS<sub>ф</sub> = SS<sub>ф</sub> / (k − 1)', 'MS<sub>ф</sub> = SS<sub>ф</sub> · k', 'MS<sub>ф</sub> = SS<sub>ф</sub> / N', 'MS<sub>ф</sub> = SS<sub>ф</sub> + k'],
+  'Сумму квадратов делят на число степеней свободы k − 1.');
+Q(8, 'По какой формуле вычисляют средний квадрат ошибки (N — число наблюдений, k — число уровней)?',
+  ['MS<sub>ош</sub> = SS<sub>ош</sub> / (N − k)', 'MS<sub>ош</sub> = SS<sub>ош</sub> / (k − 1)', 'MS<sub>ош</sub> = SS<sub>ош</sub> · N', 'MS<sub>ош</sub> = SS<sub>ош</sub> + N'],
+  'Сумму квадратов делят на число степеней свободы N − k.');
+Q(8, 'Когда влияние фактора считают статистически значимым?',
+  ['Когда F больше критического значения',
+   'Когда F равно нулю',
+   'Когда все групповые средние равны',
+   'Когда в эксперименте нет повторов'],
+  'То же условие: p-value меньше выбранного уровня значимости.');
+/* ================= ЛОГИКА ================= */
+(function () {
+  'use strict';
+  const $ = id => document.getElementById(id);
+  const QMAP = Object.fromEntries(BANK.map(q => [q.id, q]));
+  const TOTAL = WORKS.length * CONFIG.perWork;
+  const LIMIT = CONFIG.secondsPerQuestion * 1000;
+  const KEYS = 'АБВГДЕ';
+  const K_JOURNAL = CONFIG.storageKey + '-journal';
+  const K_PROGRESS = CONFIG.storageKey + '-progress2';
+  const K_PERSON = CONFIG.storageKey + '-person';
+
+  /* ---------- хранилище (с запасным вариантом в памяти) ---------- */
+  const mem = {};
+  const store = {
+    get(k, def) { try { const v = localStorage.getItem(k); return v === null ? (k in mem ? mem[k] : def) : JSON.parse(v); } catch (e) { return k in mem ? mem[k] : def; } },
+    set(k, v) { mem[k] = v; try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* остаётся в памяти */ } },
+    del(k) { delete mem[k]; try { localStorage.removeItem(k); } catch (e) { /* нет доступа */ } }
+  };
+
+  /* ---------- утилиты ---------- */
+  const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  function shuffle(a) { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+  const pctOf = (score, total) => total ? score / total * 100 : 0;
+  function gradeFor(score, total) { const p = pctOf(score, total); for (const s of CONFIG.scale) if (p >= s.min) return s.grade; return CONFIG.scale[CONFIG.scale.length - 1].grade; }
+  function fmtDur(sec) { sec = Math.max(0, Math.round(sec)); return Math.floor(sec / 60) + ':' + String(sec % 60).padStart(2, '0'); }
+  function fmtDate(ts) { try { return new Date(ts).toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }); } catch (e) { return ''; } }
+  function plural(n, one, few, many) { const a = n % 10, b = n % 100; return a === 1 && b !== 11 ? one : (a >= 2 && a <= 4 && (b < 12 || b > 14) ? few : many); }
+  let toastTimer = 0;
+  function toast(msg) { const t = $('toast'); t.textContent = msg; t.hidden = false; clearTimeout(toastTimer); toastTimer = setTimeout(() => { t.hidden = true; }, 2600); }
+  function copyText(text, okMsg) {
+    const fallback = () => {
+      try {
+        const ta = document.createElement('textarea'); ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+        document.body.appendChild(ta); ta.select(); const ok = document.execCommand('copy'); document.body.removeChild(ta);
+        toast(ok ? okMsg : 'Не удалось скопировать. Выделите текст и скопируйте вручную.');
+      } catch (e) { toast('Не удалось скопировать. Выделите текст и скопируйте вручную.'); }
+    };
+    try { navigator.clipboard.writeText(text).then(() => toast(okMsg), fallback); } catch (e) { fallback(); }
+  }
+
+  /* ---------- код результата ---------- */
+  function b64e(str) { const bytes = new TextEncoder().encode(str); let bin = ''; bytes.forEach(b => { bin += String.fromCharCode(b); }); return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); }
+  function b64d(s) { s = s.replace(/-/g, '+').replace(/_/g, '/'); while (s.length % 4) s += '='; const bin = atob(s); return new TextDecoder().decode(Uint8Array.from(bin, c => c.charCodeAt(0))); }
+  function sign(str) {
+    str += '|' + CONFIG.salt;
+    let h1 = 0x811c9dc5, h2 = 0x9e3779b9;
+    for (let i = 0; i < str.length; i++) { const c = str.charCodeAt(i); h1 = Math.imul(h1 ^ c, 0x01000193); h2 = Math.imul(h2 ^ c, 0x85ebca6b); h2 ^= h2 >>> 13; }
+    return (h1 >>> 0).toString(36) + (h2 >>> 0).toString(36);
+  }
+  function encodeRec(r) {
+    const payload = JSON.stringify([1, r.name, r.group, r.score, r.total, r.per.join(''), r.pw, r.dur, r.blur, r.ts, r.att]);
+    return 'MP1.' + b64e(payload) + '.' + sign(payload);
+  }
+  function decodeRec(code) {
+    const m = /^MP1\.([A-Za-z0-9_-]+)\.([a-z0-9]+)$/.exec(code.trim());
+    if (!m) return null;
+    let payload, a;
+    try { payload = b64d(m[1]); a = JSON.parse(payload); } catch (e) { return null; }
+    if (sign(payload) !== m[2] || !Array.isArray(a) || a[0] !== 1 || a.length < 11) return null;
+    const r = { name: String(a[1]), group: String(a[2]), score: +a[3], total: +a[4], per: String(a[5]).split('').map(Number), pw: +a[6], dur: +a[7], blur: +a[8], ts: +a[9], att: +a[10] };
+    if (!(r.total > 0) || r.score < 0 || r.score > r.total) return null;
+    r.id = m[2]; r.code = code.trim(); r.grade = gradeFor(r.score, r.total); r.src = 'code';
+    return r;
+  }
+
+  /* ---------- состояние ---------- */
+  const state = { tab: 'test', phase: 'start', attempt: null, last: null, revAll: false };
+  let journal = store.get(K_JOURNAL, []);
+  if (!Array.isArray(journal)) journal = [];
+  const saveJournal = () => store.set(K_JOURNAL, journal);
+  const saveProgress = () => store.set(K_PROGRESS, state.attempt);
+
+  /* ---------- старт ---------- */
+  function renderStart() {
+    const mins = Math.ceil(TOTAL * CONFIG.secondsPerQuestion / 60);
+    $('facts').innerHTML =
+      `<div class="fact"><b>${TOTAL}</b><span>${plural(TOTAL, 'вопрос', 'вопроса', 'вопросов')}, по ${CONFIG.perWork} из каждой работы</span></div>` +
+      `<div class="fact"><b>${CONFIG.secondsPerQuestion} с</b><span>на выбор ответа в каждом вопросе</span></div>` +
+      `<div class="fact"><b>до ${mins} мин</b><span>на весь тест</span></div>` +
+      `<div class="fact"><b>${BANK.length}</b><span>${plural(BANK.length, 'вопрос', 'вопроса', 'вопросов')} в банке</span></div>`;
+    $('works').innerHTML = WORKS.map(w => `<li><i>ПР ${w.n}</i><span>${esc(w.t)}</span></li>`).join('');
+    const sc = CONFIG.scale.slice().sort((a, b) => b.min - a.min);
+    $('scale').innerHTML = sc.map((s, i) => {
+      const lo = Math.ceil(s.min / 100 * TOTAL - 1e-9);
+      const hi = i === 0 ? TOTAL : Math.ceil(sc[i - 1].min / 100 * TOTAL - 1e-9) - 1;
+      const cls = s.grade >= 5 ? 'good' : s.grade === 4 ? '' : s.grade === 3 ? 'warn' : 'bad';
+      return `<span class="pill ${cls}">«${s.grade}» · ${lo === hi ? lo : lo + '–' + hi} верных</span>`;
+    }).join('');
+    const p = store.get(K_PERSON, null);
+    if (p && !$('f-name').value) { $('f-name').value = p.name || ''; $('f-group').value = p.group || ''; }
+  }
+
+  function startAttempt(name, group) {
+    const items = [];
+    WORKS.forEach(w => {
+      const pool = shuffle(BANK.filter(q => q.w === w.n)).slice(0, CONFIG.perWork);
+      pool.forEach(q => items.push({ id: q.id, ord: shuffle(q.o.map((_, i) => i)) }));
+    });
+    const key = (name + '|' + group).toLowerCase();
+    const att = journal.filter(r => (r.name + '|' + r.group).toLowerCase() === key).length + 1;
+    const now = Date.now();
+    state.attempt = { name, group, items, ans: items.map(() => null), cur: 0, start: now, qStart: now, blur: 0, att };
+    state.phase = 'quiz';
+    store.set(K_PERSON, { name, group });
+    saveProgress();
+    render();
+  }
+
+  /* ---------- тест ---------- */
+  function renderQuiz() {
+    const a = state.attempt; if (!a) return;
+    const it = a.items[a.cur], q = QMAP[it.id], w = WORKS.find(x => x.n === q.w);
+    $('q-work').textContent = 'ПР №' + w.n + ' · ' + w.t;
+    $('q-count').textContent = 'Вопрос ' + (a.cur + 1) + ' из ' + a.items.length;
+    $('q-text').innerHTML = q.q;
+    $('q-opts').innerHTML = it.ord.map((oi, k) =>
+      `<button type="button" class="opt" role="radio" aria-checked="${a.ans[a.cur] === k}" data-k="${k}"><span class="key">${KEYS[k]}</span><span>${q.o[oi]}</span></button>`).join('');
+    $('dots').innerHTML = a.items.map((_, i) => `<i class="${i === a.cur ? 'cur' : i < a.cur ? (a.ans[i] === null ? 'skip' : 'done') : ''}"></i>`).join('');
+    $('btn-next').textContent = a.cur === a.items.length - 1 ? 'Завершить тест' : 'Ответить';
+    $('btn-next').disabled = a.ans[a.cur] === null;
+    paintTimer();
+  }
+  function paintTimer() {
+    const a = state.attempt; if (!a) return;
+    const left = Math.max(0, LIMIT - (Date.now() - a.qStart));
+    $('sec').textContent = Math.ceil(left / 1000);
+    $('bar').style.transform = 'scaleX(' + (left / LIMIT).toFixed(3) + ')';
+    $('timer').classList.toggle('low', left <= 10000);
+  }
+  function selectOption(k) {
+    const a = state.attempt; if (!a || state.phase !== 'quiz') return;
+    a.ans[a.cur] = k; saveProgress();
+    $('q-opts').querySelectorAll('.opt').forEach(b => b.setAttribute('aria-checked', String(+b.dataset.k === k)));
+    $('btn-next').disabled = false;
+  }
+  function commit() {
+    const a = state.attempt; if (!a) return;
+    a.cur++; a.qStart = Date.now();
+    if (a.cur >= a.items.length) { finish(); return; }
+    saveProgress();
+    if (state.tab === 'test') renderQuiz();
+  }
+  function tick() {
+    const a = state.attempt;
+    if (state.phase !== 'quiz' || !a) return;
+    if (Date.now() - a.qStart >= LIMIT) { commit(); return; }
+    if (state.tab === 'test') paintTimer();
+  }
+
+  /* ---------- завершение ---------- */
+  function finish() {
+    const a = state.attempt; if (!a) return;
+    const per = WORKS.map(() => 0);
+    let score = 0;
+    a.items.forEach((it, i) => {
+      const ok = a.ans[i] !== null && it.ord[a.ans[i]] === 0;
+      if (ok) { score++; per[WORKS.findIndex(w => w.n === QMAP[it.id].w)]++; }
+    });
+    const rec = { name: a.name, group: a.group, score, total: a.items.length, per, pw: CONFIG.perWork,
+      dur: Math.round((Date.now() - a.start) / 1000), blur: a.blur, ts: Date.now(), att: a.att, src: 'local' };
+    rec.grade = gradeFor(rec.score, rec.total);
+    rec.code = encodeRec(rec);
+    rec.id = rec.code.split('.')[2];
+    journal.push(rec); saveJournal();
+    store.del(K_PROGRESS);
+    state.last = { rec, attempt: a }; state.attempt = null; state.phase = 'result'; state.revAll = false;
+    render();
+    window.scrollTo(0, 0);
+  }
+
+  function renderResult() {
+    const L = state.last; if (!L) return;
+    const r = L.rec, p = Math.round(pctOf(r.score, r.total));
+    const g = $('r-grade'); g.textContent = r.grade; g.className = 'grade g' + r.grade;
+    $('r-name').textContent = r.name;
+    $('r-sub').textContent = 'Группа ' + r.group + ' · попытка ' + r.att + ' · ' + fmtDate(r.ts);
+    $('r-facts').innerHTML =
+      `<div><dt>Верных ответов</dt><dd>${r.score} из ${r.total}</dd></div>` +
+      `<div><dt>Результат</dt><dd>${p} %</dd></div>` +
+      `<div><dt>Время</dt><dd>${fmtDur(r.dur)}</dd></div>` +
+      `<div><dt>Уходов со вкладки</dt><dd>${r.blur}</dd></div>`;
+    $('r-works').innerHTML = WORKS.map((w, i) => {
+      const cells = Array.from({ length: r.pw }, (_, k) => `<b class="${k < r.per[i] ? 'ok' : ''}"></b>`).join('');
+      return `<div class="w"><i>ПР ${w.n}</i><span>${esc(w.t)}</span><span class="cells">${cells}</span><span class="num"><b>${r.per[i]}</b> / ${r.pw}</span></div>`;
+    }).join('');
+    $('r-code').textContent = r.code;
+    const card = $('r-review-card');
+    card.hidden = !CONFIG.showReview;
+    if (!CONFIG.showReview) return;
+    const a = L.attempt;
+    const rows = a.items.map((it, i) => {
+      const q = QMAP[it.id], pick = a.ans[i], ok = pick !== null && it.ord[pick] === 0;
+      return { i, q, ok, mine: pick === null ? null : q.o[it.ord[pick]] };
+    });
+    const wrong = rows.filter(x => !x.ok);
+    const shown = state.revAll ? rows : wrong;
+    $('btn-rev-toggle').textContent = state.revAll ? 'Показать только ошибки' : 'Показать все вопросы';
+    $('btn-rev-toggle').hidden = wrong.length === rows.length;
+    $('r-review').innerHTML = shown.length ? shown.map(x =>
+      `<article class="${x.ok ? 'ok' : ''}">
+        <div class="row"><span class="pill plain">Вопрос ${x.i + 1} · ПР №${x.q.w}</span><span class="pill ${x.ok ? 'good' : 'bad'}">${x.ok ? 'Верно' : x.mine === null ? 'Нет ответа' : 'Неверно'}</span></div>
+        <div class="qtext" style="font-size:16px">${x.q.q}</div>
+        <div class="ans">${x.ok ? '' : `<span>Ваш ответ</span><div>${x.mine === null ? 'время вышло, ответ не выбран' : x.mine}</div>`}<span>Верный ответ</span><div><b>${x.q.o[0]}</b></div></div>
+        <div class="why">${x.q.e}</div>
+      </article>`).join('') : '<div class="empty">Ошибок нет. Все ответы верные.</div>';
+  }
+
+  /* ---------- журнал ---------- */
+  let embedded = false;
+  try { embedded = window.self !== window.top; } catch (e) { embedded = true; }
+  function visibleRows() {
+    const s = $('j-search').value.trim().toLowerCase(), g = $('j-group').value, sort = $('j-sort').value;
+    let rows = journal.filter(r => (!s || r.name.toLowerCase().includes(s)) && (!g || r.group === g));
+    if ($('j-best').checked) {
+      const best = {};
+      rows.forEach(r => { const k = (r.name + '|' + r.group).toLowerCase(); if (!best[k] || r.score > best[k].score || (r.score === best[k].score && r.ts < best[k].ts)) best[k] = r; });
+      rows = Object.values(best);
+    }
+    rows.sort(sort === 'name' ? (a, b) => a.name.localeCompare(b.name, 'ru') || b.ts - a.ts
+      : sort === 'score' ? (a, b) => b.score / b.total - a.score / a.total || a.dur - b.dur
+      : (a, b) => b.ts - a.ts);
+    return rows;
+  }
+  function renderJournal() {
+    $('tab-count').textContent = journal.length ? journal.length : '';
+    const sel = $('j-group'), cur = sel.value;
+    const groups = [...new Set(journal.map(r => r.group))].sort((a, b) => a.localeCompare(b, 'ru'));
+    sel.innerHTML = '<option value="">Все группы</option>' + groups.map(g => `<option value="${esc(g)}">${esc(g)}</option>`).join('');
+    sel.value = groups.includes(cur) ? cur : '';
+    const rows = visibleRows();
+    const avg = rows.length ? Math.round(rows.reduce((s, r) => s + pctOf(r.score, r.total), 0) / rows.length) : 0;
+    const dist = g => rows.filter(r => r.grade === g).length;
+    $('j-stats').innerHTML =
+      `<div class="fact"><b>${rows.length}</b><span>${plural(rows.length, 'запись', 'записи', 'записей')} в таблице</span></div>` +
+      `<div class="fact"><b>${rows.length ? avg + ' %' : '—'}</b><span>средний результат</span></div>` +
+      `<div class="fact"><b>${dist(5)} · ${dist(4)} · ${dist(3)} · ${dist(2)}</b><span>оценок «5» · «4» · «3» · «2»</span></div>`;
+    const has = rows.length > 0;
+    $('btn-copy-table').disabled = !has; $('btn-clear').disabled = !journal.length;
+    $('btn-csv').hidden = embedded; $('btn-csv').disabled = !has;
+    if (!has) {
+      $('j-table').innerHTML = `<div class="empty">${journal.length ? 'По этому отбору записей нет.' : 'Журнал пока пуст. Запись появится здесь после первой завершённой попытки или после добавления кода результата.'}</div>`;
+      return;
+    }
+    $('j-table').innerHTML = `<div class="tablewrap"><table class="j"><thead><tr>
+      <th>№</th><th>Студент</th><th>Группа</th><th class="r">Верных</th><th class="r">%</th><th>Оценка</th><th>По работам 1–8</th><th class="r">Время</th><th class="r">Уходы</th><th>Дата</th></tr></thead><tbody>` +
+      rows.map((r, i) => `<tr>
+        <td>${i + 1}</td>
+        <td><b>${esc(r.name)}</b><div class="sub">попытка ${r.att} · ${r.src === 'code' ? 'добавлено по коду' : 'это устройство'}</div></td>
+        <td>${esc(r.group)}</td>
+        <td class="r">${r.score} / ${r.total}</td>
+        <td class="r">${Math.round(pctOf(r.score, r.total))}</td>
+        <td><span class="g g${r.grade}">${r.grade}</span></td>
+        <td><span class="pw">${r.per.map(v => `<span class="${v === r.pw ? 'full' : v === 0 ? 'zero' : ''}">${v}</span>`).join('')}</span></td>
+        <td class="r">${fmtDur(r.dur)}</td>
+        <td class="r">${r.blur}</td>
+        <td>${fmtDate(r.ts)}</td></tr>`).join('') + '</tbody></table></div>';
+  }
+  function tableData() {
+    const head = ['№', 'Студент', 'Группа', 'Верных', 'Всего', 'Процент', 'Оценка', ...WORKS.map(w => 'ПР' + w.n), 'Время', 'Уходов со вкладки', 'Попытка', 'Дата', 'Источник'];
+    const body = visibleRows().map((r, i) => [i + 1, r.name, r.group, r.score, r.total, Math.round(pctOf(r.score, r.total)), r.grade,
+      ...WORKS.map((_, k) => r.per[k] === undefined ? '' : r.per[k]), fmtDur(r.dur), r.blur, r.att, fmtDate(r.ts), r.src === 'code' ? 'по коду' : 'это устройство']);
+    return [head, ...body];
+  }
+  function importCodes() {
+    const parts = $('j-codes').value.split(/\s+/).filter(Boolean);
+    const msg = $('import-msg');
+    if (!parts.length) { msg.textContent = 'Вставьте хотя бы один код.'; return; }
+    let added = 0, dup = 0, bad = 0;
+    parts.forEach(c => {
+      const r = decodeRec(c);
+      if (!r) { bad++; return; }
+      if (journal.some(x => x.id === r.id)) { dup++; return; }
+      journal.push(r); added++;
+    });
+    if (added) { saveJournal(); $('j-codes').value = ''; renderJournal(); }
+    msg.textContent = 'Добавлено: ' + added + (dup ? '. Уже были в журнале: ' + dup : '') + (bad ? '. Не приняты (код изменён или повреждён): ' + bad : '') + '.';
+  }
+
+  /* ---------- отрисовка и навигация ---------- */
+  function render() {
+    const t = state.tab;
+    $('tab-test').setAttribute('aria-selected', String(t === 'test'));
+    $('tab-results').setAttribute('aria-selected', String(t === 'results'));
+    $('view-start').hidden = !(t === 'test' && state.phase === 'start');
+    $('view-quiz').hidden = !(t === 'test' && state.phase === 'quiz');
+    $('view-result').hidden = !(t === 'test' && state.phase === 'result');
+    $('view-results').hidden = t !== 'results';
+    $('tab-count').textContent = journal.length ? journal.length : '';
+    if (t === 'results') renderJournal();
+    else if (state.phase === 'start') renderStart();
+    else if (state.phase === 'quiz') renderQuiz();
+    else renderResult();
+  }
+  function setTab(t) {
+    state.tab = t;
+    try { if (location.hash !== '#' + t) history.replaceState(null, '', '#' + t); } catch (e) { /* хеш недоступен */ }
+    render();
+  }
+
+  /* ---------- события ---------- */
+  document.querySelectorAll('.tabs button').forEach(b => b.addEventListener('click', () => setTab(b.dataset.tab)));
+  window.addEventListener('hashchange', () => { const h = location.hash.slice(1); if (h === 'test' || h === 'results') { state.tab = h; render(); } });
+  $('start-form').addEventListener('submit', e => {
+    e.preventDefault();
+    const name = $('f-name').value.trim().replace(/\s+/g, ' '), group = $('f-group').value.trim().replace(/\s+/g, ' ');
+    const err = $('start-err');
+    if (name.length < 3 || group.length < 2) { err.textContent = 'Укажите фамилию с именем и группу. Без них результат нельзя записать в журнал.'; err.hidden = false; return; }
+    err.hidden = true;
+    startAttempt(name, group);
+  });
+  $('q-opts').addEventListener('click', e => { const b = e.target.closest('.opt'); if (b) selectOption(+b.dataset.k); });
+  $('btn-next').addEventListener('click', () => { if (state.attempt && state.attempt.ans[state.attempt.cur] !== null) commit(); });
+  document.addEventListener('keydown', e => {
+    if (state.tab !== 'test' || state.phase !== 'quiz' || e.ctrlKey || e.metaKey || e.altKey) return;
+    const n = '1234'.indexOf(e.key);
+    if (n >= 0 && n < QMAP[state.attempt.items[state.attempt.cur].id].o.length) selectOption(n);
+  });
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden && state.phase === 'quiz' && state.attempt) { state.attempt.blur++; saveProgress(); }
+  });
+  $('btn-copy-code').addEventListener('click', () => copyText(state.last.rec.code, 'Код скопирован. Отправьте его преподавателю.'));
+  $('btn-to-results').addEventListener('click', () => setTab('results'));
+  $('btn-again').addEventListener('click', () => { state.phase = 'start'; state.last = null; render(); window.scrollTo(0, 0); });
+  $('btn-rev-toggle').addEventListener('click', () => { state.revAll = !state.revAll; renderResult(); });
+  ['j-search', 'j-group', 'j-sort', 'j-best'].forEach(id => $(id).addEventListener(id === 'j-search' ? 'input' : 'change', renderJournal));
+  $('btn-copy-table').addEventListener('click', () => copyText(tableData().map(r => r.join('\t')).join('\n'), 'Таблица скопирована. Вставьте её в Excel.'));
+  $('btn-csv').addEventListener('click', () => {
+    try {
+      const csv = '﻿' + tableData().map(r => r.map(c => '"' + String(c).replace(/"/g, '""') + '"').join(';')).join('\r\n');
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+      a.download = 'mipis-test-results.csv'; document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    } catch (e) { toast('Скачать не удалось. Используйте «Скопировать таблицу для Excel».'); }
+  });
+  $('btn-clear').addEventListener('click', () => { $('clear-confirm').hidden = false; $('btn-clear').hidden = true; });
+  $('btn-clear-no').addEventListener('click', () => { $('clear-confirm').hidden = true; $('btn-clear').hidden = false; });
+  $('btn-clear-yes').addEventListener('click', () => { journal = []; saveJournal(); $('clear-confirm').hidden = true; $('btn-clear').hidden = false; renderJournal(); toast('Журнал очищен.'); });
+  $('btn-import').addEventListener('click', importCodes);
+
+  /* ---------- запуск ---------- */
+  const saved = store.get(K_PROGRESS, null);
+  if (saved && Array.isArray(saved.items) && saved.items.every(it => QMAP[it.id]) && saved.cur < saved.items.length) {
+    state.attempt = saved; state.phase = 'quiz';
+  }
+  if (location.hash === '#results') state.tab = 'results';
+  render();
+  setInterval(tick, 200);
+
+  /* для автопроверки */
+  window.__quiz = { state, encodeRec, decodeRec, gradeFor, TOTAL };
+})();
+</script>
+</body>
+</html>
